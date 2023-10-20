@@ -1,0 +1,13 @@
+{
+  "name": "rouletteai",
+  "version": "1.0.0",
+  "description": "roulette data analysis",
+  "main": "nextzone.js",
+  "scripts": {
+    "dev": "node nextzone",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "type": "module"
+}
