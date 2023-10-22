@@ -21,18 +21,18 @@ const printList = (numberList, label) => {
 
       const list = positionList.map((pos) => roulette[pos]);
 
-      const filteredList = list.filter((item, index, array) => array.indexOf(item) === index);
+      const filteredList = positionList.filter((item, index, array) => array.indexOf(item) === index);
       //.filter((item) => hotNumbers.some((hot) => hot[0] === item));
       console.log(label, list.join());
       console.log(
         'zones:',
         filteredList
-          .map((n) => getMinizone(roulettePosition(n)))
+          .map((n) => getMinizone(n))
           .filter((item, index, array) => array.indexOf(item) === index)
           .join()
       );
       console.log(
-        'sides:',
+        'cuadrant:',
         list
           .map((n) => getSide(roulettePosition(n)))
           .reduce(
