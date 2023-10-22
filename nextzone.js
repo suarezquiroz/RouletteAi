@@ -1,9 +1,14 @@
 import { readFileSync } from 'fs';
 import { getMinizone, getSide, roulette, roulettePosition } from './roulette.js';
+
+const dataPoints = 300;
 const fileData = readFileSync('./data/platinum.txt', 'utf-8');
-const data = fileData.split(/\r?\n/).map((d) => {
-  return parseInt(d);
-});
+const data = fileData
+  .split(/\r?\n/)
+  .map((d) => {
+    return parseInt(d);
+  })
+  .slice(-dataPoints);
 
 console.log('data points:', data.length);
 
@@ -95,8 +100,8 @@ printList(nextNumbers, 'next: ');
 // }
 
 const printNumbers = hotNumbers.map((h) => [
-  '\nnumber: ' + h[0],
-  '\nfrom: ' + previousNumbers[h[0]].filter((item, index, array) => array.indexOf(item) === index),
+  ('\nnumber: ' + h[0]) | 'N/A',
+  '\nfrom: ' + (previousNumbers[h[0]] ? previousNumbers[h[0]].filter((item, index, array) => array.indexOf(item) === index) : 'N/A'),
 ]);
 // console.log('Hot ones:\n\r');
 console.table(
