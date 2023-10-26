@@ -1,7 +1,8 @@
 import { readFileSync } from 'fs';
-import { getMinizone, getSide, roulette, roulettePosition } from './roulette.js';
+import { getDozen, getMinizone, getSide, getColumn, roulette, roulettePosition } from './roulette.js';
+import { fibonacciDozen } from './systems/fibonacci-dozen.js';
 
-const dataPoints = 300;
+const dataPoints = 700;
 const fileData = readFileSync('./data/platinum.txt', 'utf-8');
 const data = fileData
   .split(/\r?\n/)
@@ -78,35 +79,51 @@ data.forEach((n, index, arr) => {
   }
 });
 
-const temperatures = frequencyData.map((hits, i) => [roulette[i], hits]).sort((a, b) => b[1] - a[1]);
-const hotNumbers = temperatures.slice(0, 18);
+const temperatures = frequencyData.map((hits, i) => [roulette[i], hits, i]).sort((a, b) => b[1] - a[1]);
+const hotNumbers = temperatures; //.slice(0, 18);
 
-printList(nextNumbers, 'next: ');
-
-// console.log('hot originators:');
-// for (const number in previousZones) {
-//   if (Object.hasOwnProperty.call(previousZones, number)) {
-//     const element = previousZones[number];
-//     console.log('number:', number);
-//     const list = element
-//       .map((n) => roulettePosition(n))
-//       .sort((a, b) => a - b)
-//       .map((pos) => roulette[pos]);
-
-//     const filteredList = list.filter((item, index, array) => array.indexOf(item) === index);
-//     console.log('from:', filteredList.join());
-//     console.log('hits:', list.length, 'unique:', filteredList.length, '\n');
-//   }
-// }
+//printList(nextNumbers, 'next: ');
 
 const printNumbers = hotNumbers.map((h) => [
   ('\nnumber: ' + h[0]) | 'N/A',
   '\nfrom: ' + (previousNumbers[h[0]] ? previousNumbers[h[0]].filter((item, index, array) => array.indexOf(item) === index) : 'N/A'),
 ]);
 // console.log('Hot ones:\n\r');
-console.table(
-  hotNumbers.map((h) => ({ number: h[0], hits: h[1], minizone: getMinizone(roulettePosition(h[0])) }))
-  //.sort((a, b) => a.minizone - b.minizone)
-);
+// console.table(
+//   hotNumbers.map((h) => ({ number: h[0], hits: h[1], minizone: getMinizone(h[2]), dozen: getDozen(h[0]), column: getColumn(h[0]) }))
+//   //.sort((a, b) => a.minizone - b.minizone)
+// );
 
 //console.table(nextNumbers);
+// const fibonacciD1 = fibonacciDozen(1, false);
+// const fibonacciC3 = fibonacciDozen(3, true);
+let bank = 0;
+// data.forEach((n) => {
+//   bank += fibonacciD1.nextBet(n);
+//   bank += fibonacciC3.nextBet(n);
+// });
+// console.log('Dozen wins: ', fibonacciD1.getWins());
+// console.log('Dozen maxBet: ', fibonacciD1.getMaxBet());
+// console.log('Column wins: ', fibonacciC3.getWins());
+// console.log('Column maxBet: ', fibonacciC3.getMaxBet());
+
+const results = {};
+for (let dozen = 1; dozen < 4; dozen++) {
+  for (let column = 1; column < 4; column++) {
+    let bankroll = 0;
+    const dozenBets = fibonacciDozen(dozen, false);
+    const columnBets = fibonacciDozen(column, true);
+    data.forEach((n) => {
+      bankroll += dozenBets.nextBet(n);
+      bankroll += columnBets.nextBet(n);
+    });
+    results['dozen' + dozen + 'column' + column] = {
+      dozenWins: dozenBets.getWins(),
+      dozenMaxBet: dozenBets.getMaxBet(),
+      columnWins: columnBets.getWins(),
+      columnMaxBet: columnBets.getMaxBet(),
+      bankroll,
+    };
+  }
+}
+console.table(results);

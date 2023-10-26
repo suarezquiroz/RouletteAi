@@ -1,7 +1,7 @@
 export const getDozen = (n) => {
   return Math.ceil(n / 12);
 };
-export const getcolumn = (n) => {
+export const getColumn = (n) => {
   return n < 1 ? 0 : ((n + 2) % 3) + 1;
 };
 
@@ -17,4 +17,4 @@ export const roulette = [
 export const getMinizone = (p) => Math.floor(p / 3);
 export const getSide = (p) => Math.floor(p / 9.501);
 
-export default { roulettePosition, getDozen, getcolumn, roulette, getMinizone, getSide };
+export default { roulettePosition, getDozen, getColumn, roulette, getMinizone, getSide };
