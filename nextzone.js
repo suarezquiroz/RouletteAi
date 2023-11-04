@@ -1,8 +1,10 @@
 import { readFileSync } from 'fs';
 import { getDozen, getMinizone, getSide, getColumn, roulette, roulettePosition } from './roulette.js';
 import { fibonacciDozen } from './systems/fibonacci-dozen.js';
+import { fibonacciColor } from './systems/fibonacci-evens.js';
+import { betColor, betDozen } from './systems/outside-bets.js';
 
-const dataPoints = 700;
+const dataPoints = 0;
 const fileData = readFileSync('./data/platinum.txt', 'utf-8');
 const data = fileData
   .split(/\r?\n/)
@@ -82,42 +84,42 @@ data.forEach((n, index, arr) => {
 const temperatures = frequencyData.map((hits, i) => [roulette[i], hits, i]).sort((a, b) => b[1] - a[1]);
 const hotNumbers = temperatures; //.slice(0, 18);
 
-//printList(nextNumbers, 'next: ');
+printList(nextNumbers, 'next: ');
 
 const printNumbers = hotNumbers.map((h) => [
   ('\nnumber: ' + h[0]) | 'N/A',
   '\nfrom: ' + (previousNumbers[h[0]] ? previousNumbers[h[0]].filter((item, index, array) => array.indexOf(item) === index) : 'N/A'),
 ]);
-// console.log('Hot ones:\n\r');
-// console.table(
-//   hotNumbers.map((h) => ({ number: h[0], hits: h[1], minizone: getMinizone(h[2]), dozen: getDozen(h[0]), column: getColumn(h[0]) }))
-//   //.sort((a, b) => a.minizone - b.minizone)
-// );
+console.log('Hot ones:\n\r');
+console.table(
+  hotNumbers.map((h) => ({ number: h[0], hits: h[1], minizone: getMinizone(h[2]), dozen: getDozen(h[0]), column: getColumn(h[0]) }))
+  //.sort((a, b) => a.minizone - b.minizone)
+);
 
-//console.table(nextNumbers);
-// const fibonacciD1 = fibonacciDozen(1, false);
-// const fibonacciC3 = fibonacciDozen(3, true);
+console.table(nextNumbers);
+const fibonacciD1 = fibonacciDozen(1, false);
+const fibonacciC3 = fibonacciDozen(3, true);
 let bank = 0;
-// data.forEach((n) => {
-//   bank += fibonacciD1.nextBet(n);
-//   bank += fibonacciC3.nextBet(n);
-// });
-// console.log('Dozen wins: ', fibonacciD1.getWins());
-// console.log('Dozen maxBet: ', fibonacciD1.getMaxBet());
-// console.log('Column wins: ', fibonacciC3.getWins());
-// console.log('Column maxBet: ', fibonacciC3.getMaxBet());
+data.forEach((n) => {
+  bank += fibonacciD1.nextBet(n);
+  bank += fibonacciC3.nextBet(n);
+});
+console.log('Dozen wins: ', fibonacciD1.getWins());
+console.log('Dozen maxBet: ', fibonacciD1.getMaxBet());
+console.log('Column wins: ', fibonacciC3.getWins());
+console.log('Column maxBet: ', fibonacciC3.getMaxBet());
 
-const results = {};
+const dozensResults = {};
 for (let dozen = 1; dozen < 4; dozen++) {
   for (let column = 1; column < 4; column++) {
     let bankroll = 0;
     const dozenBets = fibonacciDozen(dozen, false);
-    const columnBets = fibonacciDozen(column, true);
+    const columnBets = fibonacciDozen(column, false);
     data.forEach((n) => {
       bankroll += dozenBets.nextBet(n);
       bankroll += columnBets.nextBet(n);
     });
-    results['dozen' + dozen + 'column' + column] = {
+    dozensResults['dozen' + dozen + 'column' + column] = {
       dozenWins: dozenBets.getWins(),
       dozenMaxBet: dozenBets.getMaxBet(),
       columnWins: columnBets.getWins(),
@@ -126,4 +128,55 @@ for (let dozen = 1; dozen < 4; dozen++) {
     };
   }
 }
-console.table(results);
+console.log('fibonacci dozens/columns:');
+console.table(dozensResults);
+
+const fibonacciBlack = fibonacciColor('black');
+const fibonacciRed = fibonacciColor('red');
+let blackBankroll = 0,
+  redBankroll = 0;
+
+data.forEach((n) => {
+  blackBankroll += fibonacciBlack.nextBet(n);
+  redBankroll += fibonacciRed.nextBet(n);
+});
+const colorsResults = {
+  black: {
+    Wins: fibonacciBlack.getWins(),
+    MaxBet: fibonacciBlack.getMaxBet(),
+    Bankroll: blackBankroll,
+  },
+  red: {
+    Wins: fibonacciRed.getWins(),
+    MaxBet: fibonacciRed.getMaxBet(),
+    Bankroll: redBankroll,
+  },
+};
+console.log('Fibonacci color bets:');
+console.table(colorsResults);
+
+const poppyColor = betColor('black', 3);
+const poppyDozen = betDozen(3, 2, false);
+let poppyColorBankroll = 0;
+let poppyDozenBankroll = 0;
+
+data.forEach((n) => {
+  poppyColorBankroll += poppyColor.nextBet(n);
+  poppyDozenBankroll += poppyDozen.nextBet(n);
+});
+const poppyResults = {
+  color: {
+    Wins: poppyColor.getWins(),
+    Bankroll: poppyColorBankroll,
+  },
+  dozen: {
+    Wins: poppyDozen.getWins(),
+    Bankroll: poppyDozenBankroll,
+  },
+  total: {
+    Wins: poppyColor.getWins() + poppyDozen.getWins(),
+    Bankroll: poppyColorBankroll + poppyDozenBankroll,
+  },
+};
+console.log('Poppy 3/2 bets:');
+console.table(poppyResults);
