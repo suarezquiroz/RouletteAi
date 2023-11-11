@@ -1,5 +1,5 @@
 import { readFileSync } from 'fs';
-import { getDozen, getMinizone, getSide, getColumn, roulette, roulettePosition } from './roulette.js';
+import { getDozen, getMinizone, getSide, getColumn, roulette, roulettePosition, getMinizoneNumbers, circularMean } from './roulette.js';
 import { fibonacciDozen } from './systems/fibonacci-dozen.js';
 import { fibonacciColor } from './systems/fibonacci-evens.js';
 import { betColor, betDozen } from './systems/outside-bets.js';
@@ -53,21 +53,31 @@ const printList = (numberList, label) => {
 
 const frequencyData = [];
 const nextNumbers = {};
-const nextZones = {};
+const positions = [];
+const nextZones = [];
 const previousNumbers = {};
 
 data.forEach((n, index, arr) => {
   if (n == -2) return;
   const pos = roulettePosition(n);
+  positions.push(pos);
+  const minizone = getMinizone(pos);
   frequencyData[pos] = (frequencyData[pos] | 0) + 1;
 
   const next = arr[index + 1];
   if (next == -2) return;
   if (next && next > -2) {
+    const nextPos = roulettePosition(next);
+    const nextMinizone = getMinizone(nextPos);
     if (nextNumbers[n]) {
       nextNumbers[n].push(next);
     } else {
       nextNumbers[n] = [next];
+    }
+    if (nextZones[minizone]) {
+      nextZones[minizone].set(nextMinizone, (nextZones[minizone].get(nextMinizone) ?? 0) + 1);
+    } else {
+      nextZones[minizone] = new Map([[nextMinizone, 1]]);
     }
   }
 
@@ -96,7 +106,24 @@ console.table(
   //.sort((a, b) => a.minizone - b.minizone)
 );
 
-console.table(nextNumbers);
+console.log('Next zones:\n\r');
+console.table(
+  nextZones.map((numbers, i) => ({
+    zone: getMinizoneNumbers(i).join(', '),
+    next: [...numbers.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map((z) => getMinizoneNumbers(z[0]).join(' ') + ' W: ' + z[1])
+      .join(' | '),
+  }))
+);
+
+const mean = circularMean(positions);
+console.log('🚀 ~ file: nextzone.js:122 ~ mean:', Math.round(mean));
+console.log('🚀 ~ file: nextzone.js:122 ~ mean number:', roulette[Math.round(mean)]);
+
+//console.table(nextNumbers);
+
 const fibonacciD1 = fibonacciDozen(1, false);
 const fibonacciC3 = fibonacciDozen(3, true);
 let bank = 0;
@@ -128,8 +155,8 @@ for (let dozen = 1; dozen < 4; dozen++) {
     };
   }
 }
-console.log('fibonacci dozens/columns:');
-console.table(dozensResults);
+// console.log('fibonacci dozens/columns:');
+// console.table(dozensResults);
 
 const fibonacciBlack = fibonacciColor('black');
 const fibonacciRed = fibonacciColor('red');
@@ -152,8 +179,8 @@ const colorsResults = {
     Bankroll: redBankroll,
   },
 };
-console.log('Fibonacci color bets:');
-console.table(colorsResults);
+// console.log('Fibonacci color bets:');
+// console.table(colorsResults);
 
 const poppyColor = betColor('black', 3);
 const poppyDozen = betDozen(3, 2, false);
@@ -178,5 +205,5 @@ const poppyResults = {
     Bankroll: poppyColorBankroll + poppyDozenBankroll,
   },
 };
-console.log('Poppy 3/2 bets:');
-console.table(poppyResults);
+// console.log('Poppy 3/2 bets:');
+// console.table(poppyResults);

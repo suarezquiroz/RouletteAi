@@ -49,7 +49,7 @@ num_features = 1
 
 # Create target values which are the next number after each sequence
 targets = data[sequence_length:]
-
+print("targets",targets)
 # Get the maximum value in the data
 max_value = np.max(data)
 
@@ -65,18 +65,21 @@ winner = -2
 while winner:
     if winner > -2 and winner < 37:
         pos = roulettePosition(winner)
-        print('🚀 ~ file: RouletteAi.py:53 ~ pos:', pos)
         np.append(data, pos)
 
 
     # Create sequences of fixed length from the data
     sequences = np.array([data[i:i+sequence_length] for i in range(len(data)-sequence_length)])
-
+    print("sequences",sequences)
     # Split the data into training and validation sets
     train_data = sequences[:int(0.8*len(sequences))]
+    print("train_data",train_data)
     train_targets = targets[:int(0.8*len(targets))]
+    print("train_targets: \n",train_targets)
     val_data = sequences[int(0.8*len(sequences)):]
+    print("val_data: \n",val_data)
     val_targets = targets[int(0.8*len(targets)):]
+    print("val_targets: \n",val_targets)
     history = model.fit(train_data, train_targets, validation_data=(val_data, val_targets), epochs=100,verbose=0)
 
     predictions = model.predict(val_data)
@@ -91,7 +94,7 @@ while winner:
 
         number = numbers[0]
         #index = np.where(roulette == number)[0][0]
-        zone = np.take(roulette,np.arange(number-5,number+6),mode='wrap')
+        zone = np.take(roulette,np.arange(number-3,number+4),mode='wrap')
         print('Predicted Zone: ')
         print(', '.join(map(str, zone)), '\n')
 

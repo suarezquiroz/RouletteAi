@@ -30,7 +30,29 @@ export const getColor = (n) => {
   return color;
 };
 
-export const getMinizone = (p) => Math.floor(p / 4);
+export const minizoneSize = 5;
+export const getMinizone = (p) => Math.floor(p / minizoneSize);
+export const getMinizoneNumbers = (z) => roulette.slice(minizoneSize * z, minizoneSize * (z + 1));
 export const getSide = (p) => Math.floor(p / 9.501);
 
-export default { roulettePosition, getDozen, getColumn, roulette, getMinizone, getSide };
+// Circular means are useful if you are dealing with data that are inherently "circular" such as the day or month of the year, or direction.
+// For example, imagine your data consists of the month in which an event occurs, and you want to report the average month. If you had 3 observations in December, and 3 in February, the average should be in January (1) whereas the more conventional arithmetic mean would tell you the answer was 7. The trick to dealing with this issue is to convert the data into radians, and do a bunch of trigonometry.
+
+const mean = (positions = []) => {
+  return positions.reduce((a, b) => a + b, 0) / positions.length;
+};
+
+// This can all be wrapped in a function like this
+export const circularMean = (positions) => {
+  const radians = positions.map((p) => p * (360 / roulette.length) * (Math.PI / 180));
+  const meanCos = mean(radians.map((r) => Math.cos(r)));
+  const meanSin = mean(radians.map((r) => Math.sin(r)));
+
+  const degrees = Math.atan2(meanSin, meanCos) * (180 / Math.PI);
+  const result = degrees >= 0 ? degrees : degrees + 2 * Math.PI;
+  return result / (360 / roulette.length);
+};
+
+//Reference: http://en.wikipedia.org/wiki/Mean_of_circular_quantities
+
+export default { roulettePosition, getDozen, getColumn, roulette, getMinizone, getSide, circularMean };
