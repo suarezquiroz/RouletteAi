@@ -16,17 +16,21 @@ const data = fileData
 console.log('data points:', data.length);
 
 const printList = (numberList, label) => {
+  console.log('🚀 ~ file: nextzone.js:19 ~ printList ~ numberList:', numberList);
   for (const number in numberList) {
     if (Object.hasOwnProperty.call(numberList, number)) {
       const element = numberList[number];
       console.log('number:', number);
       const positionList = element.map((n) => roulettePosition(n)).sort((a, b) => a - b);
 
+      const nextPositionTrend = circularMean(positionList);
+      console.log('🚀 ~ file: nextzone.js:25 ~ printList ~ nextPositionTrend:', nextPositionTrend);
+      console.log('next zone trend:', getMinizoneNumbers(getMinizone(nextPositionTrend)).join(', '));
       const list = positionList.map((pos) => roulette[pos]);
 
       const filteredList = positionList.filter((item, index, array) => array.indexOf(item) === index);
       //.filter((item) => hotNumbers.some((hot) => hot[0] === item));
-      console.log(label, list.join());
+      console.log(label, positionList.join());
       console.log(
         'zones:',
         filteredList
@@ -66,7 +70,7 @@ data.forEach((n, index, arr) => {
 
   const next = arr[index + 1];
   if (next == -2) return;
-  if (next && next > -2) {
+  if (typeof next == 'number') {
     const nextPos = roulettePosition(next);
     const nextMinizone = getMinizone(nextPos);
     if (nextNumbers[n]) {
@@ -119,8 +123,8 @@ console.table(
 );
 
 const mean = circularMean(positions);
-console.log('🚀 ~ file: nextzone.js:122 ~ mean:', Math.round(mean));
-console.log('🚀 ~ file: nextzone.js:122 ~ mean number:', roulette[Math.round(mean)]);
+console.log('🚀 ~ file: nextzone.js:122 ~ mean position:', mean);
+console.log('🚀 ~ file: nextzone.js:122 ~ mean number:', roulette[mean]);
 
 //console.table(nextNumbers);
 

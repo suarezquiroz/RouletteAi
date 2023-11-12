@@ -30,7 +30,7 @@ export const getColor = (n) => {
   return color;
 };
 
-export const minizoneSize = 5;
+export const minizoneSize = 3;
 export const getMinizone = (p) => Math.floor(p / minizoneSize);
 export const getMinizoneNumbers = (z) => roulette.slice(minizoneSize * z, minizoneSize * (z + 1));
 export const getSide = (p) => Math.floor(p / 9.501);
@@ -42,15 +42,15 @@ const mean = (positions = []) => {
   return positions.reduce((a, b) => a + b, 0) / positions.length;
 };
 
-// This can all be wrapped in a function like this
+// returns mean position
 export const circularMean = (positions) => {
   const radians = positions.map((p) => p * (360 / roulette.length) * (Math.PI / 180));
   const meanCos = mean(radians.map((r) => Math.cos(r)));
   const meanSin = mean(radians.map((r) => Math.sin(r)));
-
-  const degrees = Math.atan2(meanSin, meanCos) * (180 / Math.PI);
-  const result = degrees >= 0 ? degrees : degrees + 2 * Math.PI;
-  return result / (360 / roulette.length);
+  const radiansMean = Math.atan2(meanSin, meanCos);
+  const degrees = radiansMean * (180 / Math.PI);
+  const result = degrees >= 0 ? degrees : degrees + 360;
+  return Math.round(result / (360 / roulette.length));
 };
 
 //Reference: http://en.wikipedia.org/wiki/Mean_of_circular_quantities
