@@ -31,8 +31,8 @@ export const getColor = (n) => {
 };
 
 export const minizoneSize = 3;
-export const getMinizone = (p) => Math.floor(p / minizoneSize);
-export const getMinizoneNumbers = (z) => roulette.slice(minizoneSize * z, minizoneSize * (z + 1));
+export const getMinizone = (position) => Math.floor(position / minizoneSize);
+export const getMinizoneNumbers = (zone) => roulette.slice(minizoneSize * zone, minizoneSize * (zone + 1));
 export const getSide = (p) => Math.floor(p / 9.501);
 
 // Circular means are useful if you are dealing with data that are inherently "circular" such as the day or month of the year, or direction.

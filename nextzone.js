@@ -16,7 +16,6 @@ const data = fileData
 console.log('data points:', data.length);
 
 const printList = (numberList, label) => {
-  console.log('🚀 ~ file: nextzone.js:19 ~ printList ~ numberList:', numberList);
   for (const number in numberList) {
     if (Object.hasOwnProperty.call(numberList, number)) {
       const element = numberList[number];
@@ -24,33 +23,32 @@ const printList = (numberList, label) => {
       const positionList = element.map((n) => roulettePosition(n)).sort((a, b) => a - b);
 
       const nextPositionTrend = circularMean(positionList);
-      console.log('🚀 ~ file: nextzone.js:25 ~ printList ~ nextPositionTrend:', nextPositionTrend);
       console.log('next zone trend:', getMinizoneNumbers(getMinizone(nextPositionTrend)).join(', '));
       const list = positionList.map((pos) => roulette[pos]);
 
       const filteredList = positionList.filter((item, index, array) => array.indexOf(item) === index);
       //.filter((item) => hotNumbers.some((hot) => hot[0] === item));
-      console.log(label, positionList.join());
-      console.log(
-        'zones:',
-        filteredList
-          .map((n) => getMinizone(n))
-          .filter((item, index, array) => array.indexOf(item) === index)
-          .join()
-      );
-      console.log(
-        'cuadrant:',
-        list
-          .map((n) => getSide(roulettePosition(n)))
-          .reduce(
-            (result, side) => {
-              result[side] = result[side] + 1;
-              return result;
-            },
-            { 0: 0, 1: 0, 2: 0, 3: 0 }
-          )
-      );
-      console.log('hits:', list.length, 'unique:', filteredList.length, '\n');
+      //console.log(label, positionList.join());
+      // console.log(
+      //   'zones:',
+      //   filteredList
+      //     .map((n) => getMinizone(n))
+      //     .filter((item, index, array) => array.indexOf(item) === index)
+      //     .join()
+      // );
+      // console.log(
+      //   'cuadrant:',
+      //   list
+      //     .map((n) => getSide(roulettePosition(n)))
+      //     .reduce(
+      //       (result, side) => {
+      //         result[side] = result[side] + 1;
+      //         return result;
+      //       },
+      //       { 0: 0, 1: 0, 2: 0, 3: 0 }
+      //     )
+      // );
+      // console.log('hits:', list.length, 'unique:', filteredList.length, '\n');
     }
   }
 };
@@ -98,17 +96,18 @@ data.forEach((n, index, arr) => {
 const temperatures = frequencyData.map((hits, i) => [roulette[i], hits, i]).sort((a, b) => b[1] - a[1]);
 const hotNumbers = temperatures; //.slice(0, 18);
 
-printList(nextNumbers, 'next: ');
-
 const printNumbers = hotNumbers.map((h) => [
   ('\nnumber: ' + h[0]) | 'N/A',
   '\nfrom: ' + (previousNumbers[h[0]] ? previousNumbers[h[0]].filter((item, index, array) => array.indexOf(item) === index) : 'N/A'),
 ]);
+
 console.log('Hot ones:\n\r');
 console.table(
   hotNumbers.map((h) => ({ number: h[0], hits: h[1], minizone: getMinizone(h[2]), dozen: getDozen(h[0]), column: getColumn(h[0]) }))
   //.sort((a, b) => a.minizone - b.minizone)
 );
+
+printList(nextNumbers, 'next: ');
 
 console.log('Next zones:\n\r');
 console.table(
@@ -116,8 +115,10 @@ console.table(
     zone: getMinizoneNumbers(i).join(', '),
     next: [...numbers.entries()]
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 3)
-      .map((z) => getMinizoneNumbers(z[0]).join(' ') + ' W: ' + z[1])
+      .slice(0, 6)
+      .map(
+        (z) => getMinizoneNumbers(z[0])[1] //.join(' ') + ' W: ' + z[1]
+      )
       .join(' | '),
   }))
 );
