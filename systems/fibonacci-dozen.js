@@ -42,12 +42,16 @@ export const fibonacciDozen = (dozen = 1, isColumn) => {
       bets[1] = 1;
     } else {
       win = -1 * bets[1];
-      let next = bets[0] + bets[1];
-      bets[0] = bets[1];
-      bets[1] = next;
-
-      if (next > maxBet) {
-        maxBet = next;
+      if (bets[1] == 13) {
+        bets[0] = 0;
+        bets[1] = 1;
+      } else {
+        let next = bets[0] + bets[1];
+        bets[0] = bets[1];
+        bets[1] = next;
+        if (next > maxBet) {
+          maxBet = next;
+        }
       }
     }
     //console.log('result:', n, 'win:', win, '\n');

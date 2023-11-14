@@ -124,22 +124,32 @@ console.table(
 );
 
 const mean = circularMean(positions);
-console.log('🚀 ~ file: nextzone.js:122 ~ mean position:', mean);
-console.log('🚀 ~ file: nextzone.js:122 ~ mean number:', roulette[mean]);
+console.log('Roulete mean number:', roulette[mean]);
 
 //console.table(nextNumbers);
 
 const fibonacciD1 = fibonacciDozen(1, false);
 const fibonacciC3 = fibonacciDozen(3, true);
 let bank = 0;
-data.forEach((n) => {
-  bank += fibonacciD1.nextBet(n);
-  bank += fibonacciC3.nextBet(n);
+let maxBank = 0;
+let plays = 0;
+data.forEach((n, index) => {
+  if (maxBank < 100) {
+    plays = index;
+    bank += fibonacciD1.nextBet(n);
+    bank += fibonacciC3.nextBet(n);
+    if (bank > maxBank) {
+      maxBank = bank;
+    }
+  }
 });
-console.log('Dozen wins: ', fibonacciD1.getWins());
-console.log('Dozen maxBet: ', fibonacciD1.getMaxBet());
-console.log('Column wins: ', fibonacciC3.getWins());
-console.log('Column maxBet: ', fibonacciC3.getMaxBet());
+// console.log('fibonacciD1 bank:', bank);
+// console.log('fibonacciD1 max bank:', maxBank);
+// console.log('fibonacciD1 plays:', plays);
+// console.log('Dozen wins: ', fibonacciD1.getWins());
+// console.log('Dozen maxBet: ', fibonacciD1.getMaxBet());
+// console.log('Column wins: ', fibonacciC3.getWins());
+// console.log('Column maxBet: ', fibonacciC3.getMaxBet());
 
 const dozensResults = {};
 for (let dozen = 1; dozen < 4; dozen++) {
