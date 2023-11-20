@@ -42,7 +42,7 @@ export const fibonacciDozen = (dozen = 1, isColumn) => {
       bets[1] = 1;
     } else {
       win = -1 * bets[1];
-      if (bets[1] == 13) {
+      if (bets[1] >= 21) {
         bets[0] = 0;
         bets[1] = 1;
       } else {

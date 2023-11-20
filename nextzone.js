@@ -1,9 +1,20 @@
 import { readFileSync } from 'fs';
-import { getDozen, getMinizone, getSide, getColumn, roulette, roulettePosition, getMinizoneNumbers, circularMean } from './roulette.js';
+import {
+  getDozen,
+  getMinizone,
+  getSide,
+  getColumn,
+  roulette,
+  roulettePosition,
+  getMinizoneNumbers,
+  circularMean,
+  getAjdacentNumbers,
+} from './roulette.js';
 import { fibonacciDozen } from './systems/fibonacci-dozen.js';
 import { fibonacciColor } from './systems/fibonacci-evens.js';
 import { betColor, betDozen } from './systems/outside-bets.js';
 
+const winningNumber = process.argv[2];
 const dataPoints = 0;
 const fileData = readFileSync('./data/platinum.txt', 'utf-8');
 const data = fileData
@@ -93,6 +104,35 @@ data.forEach((n, index, arr) => {
   }
 });
 
+const nextZoneBynumber = {};
+const minimumHits = 4;
+const jumps = {};
+const jumpsMap = new Map();
+
+roulette.forEach((number) => {
+  const adjacentNumbers = getAjdacentNumbers(roulettePosition(+number));
+  const spreadHits = [...nextNumbers[number], nextNumbers[adjacentNumbers[0]], ...nextNumbers[adjacentNumbers[1]]];
+
+  const nextHits = spreadHits.reduce((list, n) => {
+    const label = '' + (n == -1 ? '00 ' : n.toString() + ' ');
+    if (list[label]) {
+      list[label] = list[label] + 1;
+    } else {
+      list[label] = 1;
+    }
+    return list;
+  }, {});
+  const entries = Object.entries(nextHits).filter((pair) => pair[1] >= minimumHits);
+  const label = '' + (number == -1 ? '00 ' : number.toString() + ' ');
+  nextZoneBynumber[label] = Object.fromEntries(entries);
+
+  entries.forEach((hit) => {
+    const jumpName = (number == -1 ? '00' : number) + '-' + (hit[0] == -1 ? '00 ' : hit[0]);
+
+    jumps[jumpName] = hit[1];
+  });
+});
+
 const temperatures = frequencyData.map((hits, i) => [roulette[i], hits, i]).sort((a, b) => b[1] - a[1]);
 const hotNumbers = temperatures; //.slice(0, 18);
 
@@ -134,7 +174,7 @@ let bank = 0;
 let maxBank = 0;
 let plays = 0;
 data.forEach((n, index) => {
-  if (maxBank < 100) {
+  if (maxBank < 500) {
     plays = index;
     bank += fibonacciD1.nextBet(n);
     bank += fibonacciC3.nextBet(n);
@@ -143,13 +183,13 @@ data.forEach((n, index) => {
     }
   }
 });
-// console.log('fibonacciD1 bank:', bank);
-// console.log('fibonacciD1 max bank:', maxBank);
-// console.log('fibonacciD1 plays:', plays);
-// console.log('Dozen wins: ', fibonacciD1.getWins());
-// console.log('Dozen maxBet: ', fibonacciD1.getMaxBet());
-// console.log('Column wins: ', fibonacciC3.getWins());
-// console.log('Column maxBet: ', fibonacciC3.getMaxBet());
+console.log('fibonacci bank:', bank);
+console.log('fibonacci max bank:', maxBank);
+console.log('fibonacci plays:', plays);
+console.log('Dozen wins: ', fibonacciD1.getWins());
+console.log('Dozen maxBet: ', fibonacciD1.getMaxBet());
+console.log('Column wins: ', fibonacciC3.getWins());
+console.log('Column maxBet: ', fibonacciC3.getMaxBet());
 
 const dozensResults = {};
 for (let dozen = 1; dozen < 4; dozen++) {
@@ -170,8 +210,8 @@ for (let dozen = 1; dozen < 4; dozen++) {
     };
   }
 }
-// console.log('fibonacci dozens/columns:');
-// console.table(dozensResults);
+console.log('fibonacci dozens/columns:');
+console.table(dozensResults);
 
 const fibonacciBlack = fibonacciColor('black');
 const fibonacciRed = fibonacciColor('red');
@@ -222,3 +262,15 @@ const poppyResults = {
 };
 // console.log('Poppy 3/2 bets:');
 // console.table(poppyResults);
+
+console.table(
+  nextZoneBynumber,
+  roulette.map((n) => (n == -1 ? '00 ' : n.toString() + ' '))
+);
+
+//console.table(jumps);
+console.log('🚀 ~ file: nextzone.js:18 ~ winningNumber:', winningNumber);
+console.table(
+  { [winningNumber]: nextZoneBynumber[winningNumber + ' '] }
+  //roulette.map((n) => (n == -1 ? '00 ' : n.toString() + ' '))
+);

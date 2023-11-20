@@ -1,7 +1,7 @@
 import { getColor } from '../roulette.js';
 
 export const fibonacciColor = (color) => {
-  const bets = [0, 1];
+  let bets = [0, 1];
 
   const getResult = (n) => {
     if (color === getColor(n)) {
@@ -27,12 +27,17 @@ export const fibonacciColor = (color) => {
       }
     } else {
       win = -1 * bets[bets.length - 1];
-      let next = bets[bets.length - 1] + bets[bets.length - 2];
 
-      bets.push(next);
+      if (bets.length - 1 >= 13) {
+        bets = [0, 1];
+      } else {
+        let next = bets[bets.length - 1] + bets[bets.length - 2];
 
-      if (next > maxBet) {
-        maxBet = next;
+        bets.push(next);
+
+        if (next > maxBet) {
+          maxBet = next;
+        }
       }
     }
     //console.log('result:', n, 'win:', win, '\n');
