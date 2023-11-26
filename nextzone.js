@@ -10,7 +10,7 @@ import {
   circularMean,
   getAjdacentNumbers,
   getNumberAt,
-  StandardDeviation,
+  circularStandardDeviation,
 } from './roulette.js';
 import { fibonacciDozen } from './systems/fibonacci-dozen.js';
 import { fibonacciColor } from './systems/fibonacci-evens.js';
@@ -144,7 +144,7 @@ roulette.forEach((number) => {
   nextZoneBynumber[label] = Object.fromEntries(entries);
 
   means[label] = getNumberAt(circularMean(spreadHits));
-  //stdev[label] = StandardDeviation(spreadHits);
+  //stdev[label] = circularStandardDeviation(spreadHits);
 
   entries.forEach((hit) => {
     const jumpName = (number == -1 ? '00' : number) + '-' + (hit[0] == -1 ? '00 ' : hit[0]);

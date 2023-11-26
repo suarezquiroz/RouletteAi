@@ -58,7 +58,7 @@ const mean = (positions = []) => {
 
 // returns mean position
 export const circularMean = (positions) => {
-  const radians = positions.map((p) => p * (360 / roulette.length) * (Math.PI / 180));
+  const radians = numersToReadians(positions);
   const meanCos = mean(radians.map((r) => Math.cos(r)));
   const meanSin = mean(radians.map((r) => Math.sin(r)));
   const radiansMean = Math.atan2(meanSin, meanCos);
@@ -67,29 +67,34 @@ export const circularMean = (positions) => {
   return Math.round(result / (360 / roulette.length));
 };
 
+const numersToReadians = (positions) => {
+  return positions.map((p) => p * (360 / roulette.length) * (Math.PI / 180));
+};
+
 // Javascript program to calculate the
 // standard deviation of an array
-export function StandardDeviation(arr) {
+export function circularStandardDeviation(positions) {
+  const radians = numersToReadians(positions);
   // Creating the mean with Array.reduce
   let mean =
-    arr.reduce((acc, curr) => {
+    positions.reduce((acc, curr) => {
       return acc + curr;
-    }, 0) / arr.length;
+    }, 0) / positions.length;
 
   // Assigning (value - mean) ^ 2 to
   // every array item
-  arr = arr.map((k) => {
+  positions = positions.map((k) => {
     return (k - mean) ** 2;
   });
 
   // Calculating the sum of updated array
-  let sum = arr.reduce((acc, curr) => acc + curr, 0);
+  let sum = positions.reduce((acc, curr) => acc + curr, 0);
 
   // Calculating the variance
-  let variance = sum / arr.length;
+  let variance = sum / positions.length;
 
   // Returning the standard deviation
-  return Math.sqrt(sum / arr.length);
+  return Math.sqrt(sum / positions.length);
 }
 
 //Reference: http://en.wikipedia.org/wiki/Mean_of_circular_quantities
@@ -104,5 +109,5 @@ export default {
   getAjdacentNumbers,
   circularMean,
   getNumberAt,
-  StandardDeviation,
+  circularStandardDeviation,
 };
