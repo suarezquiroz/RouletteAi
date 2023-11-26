@@ -9,6 +9,8 @@ import {
   getMinizoneNumbers,
   circularMean,
   getAjdacentNumbers,
+  getNumberAt,
+  StandardDeviation,
 } from './roulette.js';
 import { fibonacciDozen } from './systems/fibonacci-dozen.js';
 import { fibonacciColor } from './systems/fibonacci-evens.js';
@@ -16,6 +18,7 @@ import { betColor, betDozen } from './systems/outside-bets.js';
 
 const winningNumber = process.argv[2];
 const dataPoints = 0;
+const minimumHits = 3;
 const fileData = readFileSync('./data/platinum.txt', 'utf-8');
 const data = fileData
   .split(/\r?\n/)
@@ -66,6 +69,7 @@ const printList = (numberList, label) => {
 
 const frequencyData = [];
 const nextNumbers = {};
+const nextPositions = {};
 const positions = [];
 const nextZones = [];
 const previousNumbers = {};
@@ -84,9 +88,12 @@ data.forEach((n, index, arr) => {
     const nextMinizone = getMinizone(nextPos);
     if (nextNumbers[n]) {
       nextNumbers[n].push(next);
+      nextPositions[pos].push(nextPos);
     } else {
       nextNumbers[n] = [next];
+      nextPositions[pos] = [nextPos];
     }
+
     if (nextZones[minizone]) {
       nextZones[minizone].set(nextMinizone, (nextZones[minizone].get(nextMinizone) ?? 0) + 1);
     } else {
@@ -105,15 +112,22 @@ data.forEach((n, index, arr) => {
 });
 
 const nextZoneBynumber = {};
-const minimumHits = 4;
 const jumps = {};
+const means = {};
+const stdev = {};
 const jumpsMap = new Map();
-
+const l = roulette.length;
 roulette.forEach((number) => {
-  const adjacentNumbers = getAjdacentNumbers(roulettePosition(+number));
-  const spreadHits = [...nextNumbers[number], nextNumbers[adjacentNumbers[0]], ...nextNumbers[adjacentNumbers[1]]];
+  const pos = roulettePosition(+number);
+  const adjacentNumbers = getAjdacentNumbers(pos);
 
-  const nextHits = spreadHits.reduce((list, n) => {
+  const adjacentPositions = [((pos - 1) % l) + l, ((pos + 1) % l) + l];
+
+  const spreadHits = [...nextPositions[pos], ...nextPositions[(((pos - 1) % l) + l) % l], ...nextPositions[(((pos + 1) % l) + l) % l]];
+
+  const nextHits = spreadHits.reduce((list, p) => {
+    const n = getNumberAt(p);
+    //const n = p;
     const label = '' + (n == -1 ? '00 ' : n.toString() + ' ');
     if (list[label]) {
       list[label] = list[label] + 1;
@@ -122,9 +136,15 @@ roulette.forEach((number) => {
     }
     return list;
   }, {});
-  const entries = Object.entries(nextHits).filter((pair) => pair[1] >= minimumHits);
+
+  const entries = Object.entries(nextHits)
+    .sort((a, b) => b[1] - a[1])
+    .filter((pair) => pair[1] >= minimumHits);
   const label = '' + (number == -1 ? '00 ' : number.toString() + ' ');
   nextZoneBynumber[label] = Object.fromEntries(entries);
+
+  means[label] = getNumberAt(circularMean(spreadHits));
+  //stdev[label] = StandardDeviation(spreadHits);
 
   entries.forEach((hit) => {
     const jumpName = (number == -1 ? '00' : number) + '-' + (hit[0] == -1 ? '00 ' : hit[0]);
@@ -183,13 +203,13 @@ data.forEach((n, index) => {
     }
   }
 });
-console.log('fibonacci bank:', bank);
-console.log('fibonacci max bank:', maxBank);
-console.log('fibonacci plays:', plays);
-console.log('Dozen wins: ', fibonacciD1.getWins());
-console.log('Dozen maxBet: ', fibonacciD1.getMaxBet());
-console.log('Column wins: ', fibonacciC3.getWins());
-console.log('Column maxBet: ', fibonacciC3.getMaxBet());
+// console.log('fibonacci bank:', bank);
+// console.log('fibonacci max bank:', maxBank);
+// console.log('fibonacci plays:', plays);
+// console.log('Dozen wins: ', fibonacciD1.getWins());
+// console.log('Dozen maxBet: ', fibonacciD1.getMaxBet());
+// console.log('Column wins: ', fibonacciC3.getWins());
+// console.log('Column maxBet: ', fibonacciC3.getMaxBet());
 
 const dozensResults = {};
 for (let dozen = 1; dozen < 4; dozen++) {
@@ -210,8 +230,8 @@ for (let dozen = 1; dozen < 4; dozen++) {
     };
   }
 }
-console.log('fibonacci dozens/columns:');
-console.table(dozensResults);
+// console.log('fibonacci dozens/columns:');
+// console.table(dozensResults);
 
 const fibonacciBlack = fibonacciColor('black');
 const fibonacciRed = fibonacciColor('red');
@@ -269,8 +289,17 @@ console.table(
 );
 
 //console.table(jumps);
-console.log('🚀 ~ file: nextzone.js:18 ~ winningNumber:', winningNumber);
+
+console.log('number jumps:');
 console.table(
   { [winningNumber]: nextZoneBynumber[winningNumber + ' '] }
   //roulette.map((n) => (n == -1 ? '00 ' : n.toString() + ' '))
 );
+
+console.log('Average jump landing:');
+console.table(
+  { [winningNumber]: means[winningNumber + ' '] }
+  //roulette.map((n) => (n == -1 ? '00 ' : n.toString() + ' '))
+);
+
+//console.log('Standard Deviation:', Math.round(stdev[winningNumber + ' ']));

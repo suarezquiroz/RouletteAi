@@ -44,6 +44,10 @@ export const getAjdacentNumbers = (pos) => {
   const l = roulette.length;
   return [roulette[(((pos - 1) % l) + l) % l], roulette[(((pos + 1) % l) + l) % l]];
 };
+export const getNumberAt = (pos) => {
+  const l = roulette.length;
+  return roulette[((pos % l) + l) % l];
+};
 
 // Circular means are useful if you are dealing with data that are inherently "circular" such as the day or month of the year, or direction.
 // For example, imagine your data consists of the month in which an event occurs, and you want to report the average month. If you had 3 observations in December, and 3 in February, the average should be in January (1) whereas the more conventional arithmetic mean would tell you the answer was 7. The trick to dealing with this issue is to convert the data into radians, and do a bunch of trigonometry.
@@ -63,6 +67,42 @@ export const circularMean = (positions) => {
   return Math.round(result / (360 / roulette.length));
 };
 
+// Javascript program to calculate the
+// standard deviation of an array
+export function StandardDeviation(arr) {
+  // Creating the mean with Array.reduce
+  let mean =
+    arr.reduce((acc, curr) => {
+      return acc + curr;
+    }, 0) / arr.length;
+
+  // Assigning (value - mean) ^ 2 to
+  // every array item
+  arr = arr.map((k) => {
+    return (k - mean) ** 2;
+  });
+
+  // Calculating the sum of updated array
+  let sum = arr.reduce((acc, curr) => acc + curr, 0);
+
+  // Calculating the variance
+  let variance = sum / arr.length;
+
+  // Returning the standard deviation
+  return Math.sqrt(sum / arr.length);
+}
+
 //Reference: http://en.wikipedia.org/wiki/Mean_of_circular_quantities
 
-export default { roulettePosition, getDozen, getColumn, roulette, getMinizone, getSide, getAjdacentNumbers, circularMean };
+export default {
+  roulettePosition,
+  getDozen,
+  getColumn,
+  roulette,
+  getMinizone,
+  getSide,
+  getAjdacentNumbers,
+  circularMean,
+  getNumberAt,
+  StandardDeviation,
+};
