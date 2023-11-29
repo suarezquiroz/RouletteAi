@@ -18,7 +18,7 @@ import { betColor, betDozen } from './systems/outside-bets.js';
 
 const winningNumber = process.argv[2];
 const dataPoints = 0;
-const minimumHits = 3;
+const minimumHits = 5;
 const fileData = readFileSync('./data/platinum.txt', 'utf-8');
 const data = fileData
   .split(/\r?\n/)
@@ -144,7 +144,7 @@ roulette.forEach((number) => {
     .sort((a, b) => b[1] - a[1])
     .filter((pair) => pair[1] >= minimumHits);
   const label = '' + (number == -1 ? '00 ' : number.toString() + ' ');
-  nextZoneBynumber[label] = Object.fromEntries(entries);
+  nextZoneBynumber[label] = Object.fromEntries(entries.slice(0, 18));
 
   means[label] = getNumberAt(circularMean(spreadHits));
   stdev[label] = circularStandardDeviation(spreadHits);
@@ -172,19 +172,19 @@ console.table(
 
 printList(nextNumbers, 'next: ');
 
-console.log('Next zones:\n\r');
-console.table(
-  nextZones.map((numbers, i) => ({
-    zone: getMinizoneNumbers(i).join(', '),
-    next: [...numbers.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 6)
-      .map(
-        (z) => getMinizoneNumbers(z[0])[1] //.join(' ') + ' W: ' + z[1]
-      )
-      .join(' | '),
-  }))
-);
+// console.log('Next zones:\n\r');
+// console.table(
+//   nextZones.map((numbers, i) => ({
+//     zone: getMinizoneNumbers(i).join(', '),
+//     next: [...numbers.entries()]
+//       .sort((a, b) => b[1] - a[1])
+//       .slice(0, 6)
+//       .map(
+//         (z) => getMinizoneNumbers(z[0])[1] //.join(' ') + ' W: ' + z[1]
+//       )
+//       .join(' | '),
+//   }))
+// );
 
 const mean = circularMean(positions);
 console.log('Roulete mean number:', roulette[mean]);
@@ -293,7 +293,7 @@ console.table(
 
 //console.table(jumps);
 
-console.log('number jumps:');
+console.log('winning number jumps:');
 console.table(
   { [winningNumber]: nextZoneBynumber[winningNumber + ' '] }
   //roulette.map((n) => (n == -1 ? '00 ' : n.toString() + ' '))
