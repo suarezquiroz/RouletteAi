@@ -8,7 +8,7 @@ import {
   roulettePosition,
   getMinizoneNumbers,
   circularMean,
-  getAjdacentNumbers,
+  getAdjacentNumbers,
   getNumberAt,
   circularStandardDeviation,
 } from './roulette.js';
@@ -37,7 +37,10 @@ const printList = (numberList, label) => {
       const positionList = element.map((n) => roulettePosition(n)).sort((a, b) => a - b);
 
       const nextPositionTrend = circularMean(positionList);
-      console.log('next zone trend:', getMinizoneNumbers(getMinizone(nextPositionTrend)).join(', '));
+
+      const adjacentNumbers = getAdjacentNumbers(nextPositionTrend);
+      const trendZone = [adjacentNumbers[0], nextPositionTrend, adjacentNumbers[1]].map((p) => getNumberAt(p));
+      console.log('next zone trend:', trendZone.join(', '));
       const list = positionList.map((pos) => roulette[pos]);
 
       const filteredList = positionList.filter((item, index, array) => array.indexOf(item) === index);
@@ -119,7 +122,7 @@ const jumpsMap = new Map();
 const l = roulette.length;
 roulette.forEach((number) => {
   const pos = roulettePosition(+number);
-  const adjacentNumbers = getAjdacentNumbers(pos);
+  const adjacentNumbers = getAdjacentNumbers(pos);
 
   const adjacentPositions = [((pos - 1) % l) + l, ((pos + 1) % l) + l];
 
@@ -144,7 +147,7 @@ roulette.forEach((number) => {
   nextZoneBynumber[label] = Object.fromEntries(entries);
 
   means[label] = getNumberAt(circularMean(spreadHits));
-  //stdev[label] = circularStandardDeviation(spreadHits);
+  stdev[label] = circularStandardDeviation(spreadHits);
 
   entries.forEach((hit) => {
     const jumpName = (number == -1 ? '00' : number) + '-' + (hit[0] == -1 ? '00 ' : hit[0]);
@@ -188,7 +191,7 @@ console.log('Roulete mean number:', roulette[mean]);
 
 //console.table(nextNumbers);
 
-const fibonacciD1 = fibonacciDozen(1, false);
+const fibonacciD1 = fibonacciDozen(2, true);
 const fibonacciC3 = fibonacciDozen(3, true);
 let bank = 0;
 let maxBank = 0;
@@ -203,13 +206,13 @@ data.forEach((n, index) => {
     }
   }
 });
-// console.log('fibonacci bank:', bank);
-// console.log('fibonacci max bank:', maxBank);
-// console.log('fibonacci plays:', plays);
-// console.log('Dozen wins: ', fibonacciD1.getWins());
-// console.log('Dozen maxBet: ', fibonacciD1.getMaxBet());
-// console.log('Column wins: ', fibonacciC3.getWins());
-// console.log('Column maxBet: ', fibonacciC3.getMaxBet());
+console.log('fibonacci bank:', bank);
+console.log('fibonacci max bank:', maxBank);
+console.log('fibonacci plays:', plays);
+console.log('Column 2 wins: ', fibonacciD1.getWins());
+console.log('Column 2 maxBet: ', fibonacciD1.getMaxBet());
+console.log('Column 3 wins: ', fibonacciC3.getWins());
+console.log('Column 3 maxBet: ', fibonacciC3.getMaxBet());
 
 const dozensResults = {};
 for (let dozen = 1; dozen < 4; dozen++) {
@@ -302,4 +305,4 @@ console.table(
   //roulette.map((n) => (n == -1 ? '00 ' : n.toString() + ' '))
 );
 
-//console.log('Standard Deviation:', Math.round(stdev[winningNumber + ' ']));
+console.log('Standard Deviation:', stdev[winningNumber + ' ']);

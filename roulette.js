@@ -40,7 +40,7 @@ export const getMinizone = (position) => Math.floor(position / minizoneSize);
 export const getMinizoneNumbers = (zone) => roulette.slice(minizoneSize * zone, minizoneSize * (zone + 1));
 export const getSide = (p) => Math.floor(p / 9.501);
 
-export const getAjdacentNumbers = (pos) => {
+export const getAdjacentNumbers = (pos) => {
   const l = roulette.length;
   return [roulette[(((pos - 1) % l) + l) % l], roulette[(((pos + 1) % l) + l) % l]];
 };
@@ -58,7 +58,7 @@ const mean = (positions = []) => {
 
 // returns mean position
 export const circularMean = (positions) => {
-  const radians = numersToReadians(positions);
+  const radians = numbersToRadians(positions);
   const meanCos = mean(radians.map((r) => Math.cos(r)));
   const meanSin = mean(radians.map((r) => Math.sin(r)));
   const radiansMean = Math.atan2(meanSin, meanCos);
@@ -67,34 +67,20 @@ export const circularMean = (positions) => {
   return Math.round(result / (360 / roulette.length));
 };
 
-const numersToReadians = (positions) => {
+const numbersToRadians = (positions) => {
   return positions.map((p) => p * (360 / roulette.length) * (Math.PI / 180));
 };
 
 // Javascript program to calculate the
 // standard deviation of an array
 export function circularStandardDeviation(positions) {
-  const radians = numersToReadians(positions);
-  // Creating the mean with Array.reduce
-  let mean =
-    positions.reduce((acc, curr) => {
-      return acc + curr;
-    }, 0) / positions.length;
+  const radians = numbersToRadians(positions);
 
-  // Assigning (value - mean) ^ 2 to
-  // every array item
-  positions = positions.map((k) => {
-    return (k - mean) ** 2;
-  });
-
-  // Calculating the sum of updated array
-  let sum = positions.reduce((acc, curr) => acc + curr, 0);
-
-  // Calculating the variance
-  let variance = sum / positions.length;
-
+  const meanCos = Math.pow(mean(radians.map((r) => Math.cos(r))), 2);
+  const meanSin = Math.pow(mean(radians.map((r) => Math.sin(r))), 2);
+  //const circularSD = Math.sqrt(-2 * Math.log(meanCos + meanSin))
   // Returning the standard deviation
-  return Math.sqrt(sum / positions.length);
+  return Math.sqrt(-2 * Math.log(meanCos + meanSin));
 }
 
 //Reference: http://en.wikipedia.org/wiki/Mean_of_circular_quantities
@@ -106,7 +92,7 @@ export default {
   roulette,
   getMinizone,
   getSide,
-  getAjdacentNumbers,
+  getAdjacentNumbers,
   circularMean,
   getNumberAt,
   circularStandardDeviation,
