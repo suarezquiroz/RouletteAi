@@ -11,21 +11,23 @@ import {
   getAdjacentNumbers,
   getNumberAt,
   circularStandardDeviation,
+  transposeObjectMatrix,
 } from './roulette.js';
 import { fibonacciDozen } from './systems/fibonacci-dozen.js';
 import { fibonacciColor } from './systems/fibonacci-evens.js';
 import { betColor, betDozen } from './systems/outside-bets.js';
+import { holyGrail } from './systems/holy-grail.js';
 
 const winningNumber = process.argv[2];
-const dataPoints = 0;
-const minimumHits = 5;
+const dataPoints = [0, 3000];
+const minimumHits = 3;
 const fileData = readFileSync('./data/platinum.txt', 'utf-8');
 const data = fileData
   .split(/\r?\n/)
   .map((d) => {
     return parseInt(d);
   })
-  .slice(-dataPoints);
+  .slice(dataPoints[0], dataPoints[1]);
 
 console.log('data points:', data.length);
 
@@ -72,7 +74,7 @@ const printList = (numberList, label) => {
 
 const frequencyData = [];
 const nextNumbers = {};
-const nextPositions = {};
+const nextPositions = Object.fromEntries(roulette.map((_, i) => [i, []]));
 const positions = [];
 const nextZones = [];
 const previousNumbers = {};
@@ -286,10 +288,17 @@ const poppyResults = {
 // console.log('Poppy 3/2 bets:');
 // console.table(poppyResults);
 
+console.log('\nJumps:');
 console.table(
   nextZoneBynumber,
   roulette.map((n) => (n == -1 ? '00 ' : n.toString() + ' '))
 );
+
+// console.log('transposed:');
+// console.table(
+//   transposeObjectMatrix(nextZoneBynumber),
+//   roulette.map((n) => (n == -1 ? '00 ' : n.toString() + ' '))
+// );
 
 //console.table(jumps);
 
@@ -306,3 +315,17 @@ console.table(
 );
 
 console.log('Standard Deviation:', stdev[winningNumber + ' ']);
+
+// console.log('Holy Grail:');
+// const holyGrailResults = {};
+// for (let dozen1 = 1; dozen1 <= 6; dozen1++) {
+//   for (let dozen2 = 1; dozen2 <= 6; dozen2++) {
+//     if (dozen1 != dozen2) {
+//       const results = holyGrail(data, dozen1, dozen2, 1);
+//       if (results.bankroll > 0) {
+//         holyGrailResults['dozen-' + dozen1 + '_dozen-' + dozen2] = results;
+//       }
+//     }
+//   }
+// }
+//console.table(holyGrailResults);

@@ -85,6 +85,27 @@ export function circularStandardDeviation(positions) {
 
 //Reference: http://en.wikipedia.org/wiki/Mean_of_circular_quantities
 
+export const transposeObjectMatrix = (table) => {
+  const transposed = roulette.reduce((t, n) => {
+    t[n == -1 ? '00 ' : n + ' '] = {};
+    return t;
+  }, {});
+
+  for (const row in table) {
+    if (Object.hasOwnProperty.call(table, row)) {
+      const columns = table[row];
+
+      for (const column in columns) {
+        if (Object.hasOwnProperty.call(columns, column)) {
+          const hits = columns[column];
+          transposed[column][row] = hits;
+        }
+      }
+    }
+  }
+  return transposed;
+};
+
 export default {
   roulettePosition,
   getDozen,
@@ -96,4 +117,5 @@ export default {
   circularMean,
   getNumberAt,
   circularStandardDeviation,
+  transposeObjectMatrix,
 };

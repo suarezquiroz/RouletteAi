@@ -30,12 +30,28 @@ export const betColor = (color, bet) => {
   return { nextBet, getWins };
 };
 
-export const betDozen = (dozen, bet, isColumn) => {
+const getDozenRange = (dozen) => {
   let range = defaultRange;
   let column = defaultColumn;
 
-  if (isColumn) {
+  if (dozen1 > 3) {
     column = dozen;
+  } else {
+    if (dozen1 == 2) {
+      range = [13, 24];
+    } else if (dozen1 == 3) {
+      range = [25, 36];
+    }
+  }
+  return range;
+};
+
+export const betDozen = (dozen, baseUnit = 1, isColumn) => {
+  let range = defaultRange;
+  let column = defaultColumn;
+
+  if (isColumn || dozen > 3) {
+    column = ((dozen + 2) % 3) + 1;
   } else {
     if (dozen == 2) {
       range = [13, 24];
@@ -56,36 +72,20 @@ export const betDozen = (dozen, bet, isColumn) => {
   };
   let wins = 0;
 
-  const nextBet = (n) => {
+  const nextBet = (n, units = 1) => {
     let win = 0;
     const winner = getResult(n, isColumn);
     if (winner) {
       wins++;
-      win = bet * 2;
+      win = baseUnit * units * 2;
     } else {
-      win = -1 * bet;
+      win = -1 * baseUnit * units;
     }
     return win;
   };
 
   const getWins = () => wins;
   return { nextBet, getWins };
-};
-
-const getDozenRange = (dozen) => {
-  let range = defaultRange;
-  let column = defaultColumn;
-
-  if (dozen1 > 3) {
-    column = dozen;
-  } else {
-    if (dozen1 == 2) {
-      range = [13, 24];
-    } else if (dozen1 == 3) {
-      range = [25, 36];
-    }
-  }
-  return range;
 };
 
 export const betHolyGrail = (dozen1, dozen2, bet) => {
