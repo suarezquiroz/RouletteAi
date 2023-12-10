@@ -7,6 +7,7 @@ import {
   roulette,
   roulettePosition,
   getMinizoneNumbers,
+  mean,
   circularMean,
   getAdjacentNumbers,
   getNumberAt,
@@ -19,8 +20,8 @@ import { betColor, betDozen } from './systems/outside-bets.js';
 import { holyGrail } from './systems/holy-grail.js';
 
 const winningNumber = process.argv[2];
-const dataPoints = [0, 3000];
-const minimumHits = 3;
+const dataPoints = [3000];
+const minimumHits = 2;
 const fileData = readFileSync('./data/platinum.txt', 'utf-8');
 const data = fileData
   .split(/\r?\n/)
@@ -75,6 +76,7 @@ const printList = (numberList, label) => {
 const frequencyData = [];
 const nextNumbers = {};
 const nextPositions = Object.fromEntries(roulette.map((_, i) => [i, []]));
+const spreadedFrequecy = Object.fromEntries(roulette.map((n) => [n, 0]));
 const positions = [];
 const nextZones = [];
 const previousNumbers = {};
@@ -113,6 +115,17 @@ data.forEach((n, index, arr) => {
     } else {
       previousNumbers[n] = [prev];
     }
+  }
+});
+
+const spreadData = positions
+  .map((p) => {
+    return [roulette[p], roulette[p], ...getAdjacentNumbers(p)];
+  })
+  .flat();
+spreadData.forEach((n) => {
+  if (spreadedFrequecy[n] >= 0) {
+    spreadedFrequecy[n] += 1;
   }
 });
 
@@ -188,18 +201,18 @@ printList(nextNumbers, 'next: ');
 //   }))
 // );
 
-const mean = circularMean(positions);
-console.log('Roulete mean number:', roulette[mean]);
+const rouletteMean = circularMean(positions);
+console.log('Roulete mean number:', roulette[rouletteMean]);
 
 //console.table(nextNumbers);
 
-const fibonacciD1 = fibonacciDozen(2, true);
+const fibonacciD1 = fibonacciDozen(1, false);
 const fibonacciC3 = fibonacciDozen(3, true);
 let bank = 0;
 let maxBank = 0;
 let plays = 0;
 data.forEach((n, index) => {
-  if (maxBank < 500) {
+  if (n != -2 && maxBank < 5000) {
     plays = index;
     bank += fibonacciD1.nextBet(n);
     bank += fibonacciC3.nextBet(n);
@@ -211,20 +224,22 @@ data.forEach((n, index) => {
 console.log('fibonacci bank:', bank);
 console.log('fibonacci max bank:', maxBank);
 console.log('fibonacci plays:', plays);
-console.log('Column 2 wins: ', fibonacciD1.getWins());
-console.log('Column 2 maxBet: ', fibonacciD1.getMaxBet());
-console.log('Column 3 wins: ', fibonacciC3.getWins());
-console.log('Column 3 maxBet: ', fibonacciC3.getMaxBet());
+console.log('Dozen 1 wins: ', fibonacciD1.getWins());
+console.log('Dozen 1 maxBet: ', fibonacciD1.getMaxBet());
+console.log('Column 1 wins: ', fibonacciC3.getWins());
+console.log('Column 1 maxBet: ', fibonacciC3.getMaxBet());
 
 const dozensResults = {};
 for (let dozen = 1; dozen < 4; dozen++) {
   for (let column = 1; column < 4; column++) {
     let bankroll = 0;
     const dozenBets = fibonacciDozen(dozen, false);
-    const columnBets = fibonacciDozen(column, false);
+    const columnBets = fibonacciDozen(column, true);
     data.forEach((n) => {
-      bankroll += dozenBets.nextBet(n);
-      bankroll += columnBets.nextBet(n);
+      if (n != -2) {
+        bankroll += dozenBets.nextBet(n);
+        bankroll += columnBets.nextBet(n);
+      }
     });
     dozensResults['dozen' + dozen + 'column' + column] = {
       dozenWins: dozenBets.getWins(),
@@ -235,8 +250,8 @@ for (let dozen = 1; dozen < 4; dozen++) {
     };
   }
 }
-// console.log('fibonacci dozens/columns:');
-// console.table(dozensResults);
+console.log('fibonacci dozens/columns:');
+console.table(dozensResults);
 
 const fibonacciBlack = fibonacciColor('black');
 const fibonacciRed = fibonacciColor('red');
@@ -262,14 +277,18 @@ const colorsResults = {
 // console.log('Fibonacci color bets:');
 // console.table(colorsResults);
 
-const poppyColor = betColor('black', 3);
-const poppyDozen = betDozen(3, 2, false);
+const poppyColor = betColor('red', 3);
+const poppyDozen = betDozen(2, 2, true);
 let poppyColorBankroll = 0;
 let poppyDozenBankroll = 0;
+let maxPoppyBankroll = 0;
 
 data.forEach((n) => {
   poppyColorBankroll += poppyColor.nextBet(n);
   poppyDozenBankroll += poppyDozen.nextBet(n);
+  if (poppyColorBankroll + poppyDozenBankroll > maxPoppyBankroll) {
+    maxPoppyBankroll = poppyColorBankroll + poppyDozenBankroll;
+  }
 });
 const poppyResults = {
   color: {
@@ -284,15 +303,18 @@ const poppyResults = {
     Wins: poppyColor.getWins() + poppyDozen.getWins(),
     Bankroll: poppyColorBankroll + poppyDozenBankroll,
   },
+  max: {
+    Bankroll: maxPoppyBankroll,
+  },
 };
-// console.log('Poppy 3/2 bets:');
-// console.table(poppyResults);
+console.log('Poppy 3/2 bets:');
+console.table(poppyResults);
 
-console.log('\nJumps:');
-console.table(
-  nextZoneBynumber,
-  roulette.map((n) => (n == -1 ? '00 ' : n.toString() + ' '))
-);
+// console.log('\nJumps:');
+// console.table(
+//   nextZoneBynumber,
+//   roulette.map((n) => (n == -1 ? '00 ' : n.toString() + ' '))
+// );
 
 // console.log('transposed:');
 // console.table(
@@ -301,6 +323,62 @@ console.table(
 // );
 
 //console.table(jumps);
+
+// console.log('Holy Grail:');
+// const holyGrailResults = {};
+// for (let dozen1 = 1; dozen1 <= 6; dozen1++) {
+//   for (let dozen2 = 1; dozen2 <= 6; dozen2++) {
+//     if (dozen1 != dozen2) {
+//       const results = holyGrail(data, dozen1, dozen2, 1);
+//       if (results.bankroll > 0) {
+//         holyGrailResults['dozen-' + dozen1 + '_dozen-' + dozen2] = results;
+//       }
+//     }
+//   }
+// }
+// console.table(holyGrailResults);
+
+//console.table(Object.entries(spreadedFrequecy).sort((a, b) => b[1] - a[1]));
+
+const spacings = Object.fromEntries(roulette.map((n) => [n, []]));
+const maxSpacings = Object.fromEntries(roulette.map((n) => [n, 0]));
+
+let lastIndexes = Object.fromEntries(roulette.map((n) => [n, 0]));
+let sessionStart = 0;
+data.forEach((n, i) => {
+  if (n == -2) {
+    sessionStart = i;
+    lastIndexes = Object.fromEntries(roulette.map((n) => [n, i]));
+  } else {
+    if (lastIndexes[n] > sessionStart + 1) {
+      const gap = i - lastIndexes[n];
+
+      if (gap > maxSpacings[n]) {
+        maxSpacings[n] = gap;
+      }
+
+      spacings[n].push(gap);
+    }
+    lastIndexes[n] = i;
+  }
+});
+
+const averageSpacings = Object.fromEntries(roulette.map((n) => [n, 0]));
+
+for (const number in spacings) {
+  if (Object.hasOwnProperty.call(spacings, number)) {
+    const gaps = spacings[number];
+    averageSpacings[number] = Math.round(mean(gaps));
+  }
+}
+
+const spagcingData = Object.fromEntries(
+  Object.entries(averageSpacings)
+    .sort((a, b) => a[1] - b[1])
+    .map((e) => [' ' + e[0] + ' ', { average: e[1], max: maxSpacings[e[0]], wins: spreadedFrequecy[e[0]] }])
+);
+console.log('spagcingData');
+console.table(spagcingData);
 
 console.log('winning number jumps:');
 console.table(
@@ -315,17 +393,3 @@ console.table(
 );
 
 console.log('Standard Deviation:', stdev[winningNumber + ' ']);
-
-// console.log('Holy Grail:');
-// const holyGrailResults = {};
-// for (let dozen1 = 1; dozen1 <= 6; dozen1++) {
-//   for (let dozen2 = 1; dozen2 <= 6; dozen2++) {
-//     if (dozen1 != dozen2) {
-//       const results = holyGrail(data, dozen1, dozen2, 1);
-//       if (results.bankroll > 0) {
-//         holyGrailResults['dozen-' + dozen1 + '_dozen-' + dozen2] = results;
-//       }
-//     }
-//   }
-// }
-//console.table(holyGrailResults);

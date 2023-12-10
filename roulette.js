@@ -52,7 +52,7 @@ export const getNumberAt = (pos) => {
 // Circular means are useful if you are dealing with data that are inherently "circular" such as the day or month of the year, or direction.
 // For example, imagine your data consists of the month in which an event occurs, and you want to report the average month. If you had 3 observations in December, and 3 in February, the average should be in January (1) whereas the more conventional arithmetic mean would tell you the answer was 7. The trick to dealing with this issue is to convert the data into radians, and do a bunch of trigonometry.
 
-const mean = (positions = []) => {
+export const mean = (positions = []) => {
   return positions.reduce((a, b) => a + b, 0) / positions.length;
 };
 
@@ -114,6 +114,7 @@ export default {
   getMinizone,
   getSide,
   getAdjacentNumbers,
+  mean,
   circularMean,
   getNumberAt,
   circularStandardDeviation,
