@@ -18,9 +18,10 @@ import { fibonacciDozen } from './systems/fibonacci-dozen.js';
 import { fibonacciColor } from './systems/fibonacci-evens.js';
 import { betColor, betDozen } from './systems/outside-bets.js';
 import { holyGrail } from './systems/holy-grail.js';
+import {dAlembertDozen} from './systems/d-lambert-dozen.js';
 
 const winningNumber = process.argv[2];
-const dataPoints = [3000];
+const dataPoints = [0];
 const minimumHits = 2;
 const fileData = readFileSync('./data/platinum.txt', 'utf-8');
 const data = fileData
@@ -393,3 +394,14 @@ console.table(
 );
 
 console.log('Standard Deviation:', stdev[winningNumber + ' ']);
+
+// console.log('D`Lambert Dozen:');
+// const dAlembertResults = {};
+// for (let dozen1 = 1; dozen1 <= 6; dozen1++) {
+
+//   const results = dAlembertDozen(data, dozen1, 2);
+//   if (results.bankroll > 0) {
+//     dAlembertResults['dozen-' + dozen1 ] = results;
+//   }
+// }
+// console.table(dAlembertResults);
