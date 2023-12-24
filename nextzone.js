@@ -278,38 +278,38 @@ const colorsResults = {
 // console.log('Fibonacci color bets:');
 // console.table(colorsResults);
 
-const poppyColor = betColor('red', 3);
-const poppyDozen = betDozen(2, 2, true);
-let poppyColorBankroll = 0;
-let poppyDozenBankroll = 0;
-let maxPoppyBankroll = 0;
+// const poppyColor = betColor('black', 3);
+// const poppyDozen = betDozen(3, 2, true);
+// let poppyColorBankroll = 0;
+// let poppyDozenBankroll = 0;
+// let maxPoppyBankroll = 0;
 
-data.forEach((n) => {
-  poppyColorBankroll += poppyColor.nextBet(n);
-  poppyDozenBankroll += poppyDozen.nextBet(n);
-  if (poppyColorBankroll + poppyDozenBankroll > maxPoppyBankroll) {
-    maxPoppyBankroll = poppyColorBankroll + poppyDozenBankroll;
-  }
-});
-const poppyResults = {
-  color: {
-    Wins: poppyColor.getWins(),
-    Bankroll: poppyColorBankroll,
-  },
-  dozen: {
-    Wins: poppyDozen.getWins(),
-    Bankroll: poppyDozenBankroll,
-  },
-  total: {
-    Wins: poppyColor.getWins() + poppyDozen.getWins(),
-    Bankroll: poppyColorBankroll + poppyDozenBankroll,
-  },
-  max: {
-    Bankroll: maxPoppyBankroll,
-  },
-};
-console.log('Poppy 3/2 bets:');
-console.table(poppyResults);
+// data.forEach((n) => {
+//   poppyColorBankroll += poppyColor.nextBet(n);
+//   poppyDozenBankroll += poppyDozen.nextBet(n);
+//   if (poppyColorBankroll + poppyDozenBankroll > maxPoppyBankroll) {
+//     maxPoppyBankroll = poppyColorBankroll + poppyDozenBankroll;
+//   }
+// });
+// const poppyResults = {
+//   color: {
+//     Wins: poppyColor.getWins(),
+//     Bankroll: poppyColorBankroll,
+//   },
+//   dozen: {
+//     Wins: poppyDozen.getWins(),
+//     Bankroll: poppyDozenBankroll,
+//   },
+//   total: {
+//     Wins: poppyColor.getWins() + poppyDozen.getWins(),
+//     Bankroll: poppyColorBankroll + poppyDozenBankroll,
+//   },
+//   max: {
+//     Bankroll: maxPoppyBankroll,
+//   },
+// };
+// console.log('Poppy 3/2 bets:');
+// console.table(poppyResults);
 
 // console.log('\nJumps:');
 // console.table(
