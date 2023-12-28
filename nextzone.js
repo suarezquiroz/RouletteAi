@@ -43,7 +43,7 @@ const printList = (numberList, label) => {
       const nextPositionTrend = circularMean(positionList);
 
       const adjacentNumbers = getAdjacentNumbers(nextPositionTrend);
-      const trendZone = [adjacentNumbers[0], nextPositionTrend, adjacentNumbers[1]].map((p) => getNumberAt(p));
+      const trendZone = [adjacentNumbers[0], getNumberAt(nextPositionTrend), adjacentNumbers[1]];
       console.log('next zone trend:', trendZone.join(', '));
       const list = positionList.map((pos) => roulette[pos]);
 
@@ -186,7 +186,6 @@ console.table(
   //.sort((a, b) => a.minizone - b.minizone)
 );
 
-printList(nextNumbers, 'next: ');
 
 // console.log('Next zones:\n\r');
 // console.table(
@@ -202,8 +201,6 @@ printList(nextNumbers, 'next: ');
 //   }))
 // );
 
-const rouletteMean = circularMean(positions);
-console.log('Roulete mean number:', roulette[rouletteMean]);
 
 //console.table(nextNumbers);
 
@@ -222,13 +219,22 @@ data.forEach((n, index) => {
     }
   }
 });
-console.log('fibonacci bank:', bank);
+console.log('\nfibonacci bank:', bank);
 console.log('fibonacci max bank:', maxBank);
 console.log('fibonacci plays:', plays);
 console.log('Dozen 1 wins: ', fibonacciD1.getWins());
 console.log('Dozen 1 maxBet: ', fibonacciD1.getMaxBet());
 console.log('Column 1 wins: ', fibonacciC3.getWins());
 console.log('Column 1 maxBet: ', fibonacciC3.getMaxBet());
+
+console.log('\nD`Lambert Dozen:');
+const dAlembertResults = {};
+for (let dozen1 = 1; dozen1 <= 6; dozen1++) {
+
+  const results = dAlembertDozen(data, dozen1, 1);
+  dAlembertResults['dozen-' + dozen1 ] = results;
+}
+console.table(dAlembertResults);
 
 const dozensResults = {};
 for (let dozen = 1; dozen < 4; dozen++) {
@@ -341,6 +347,11 @@ const colorsResults = {
 
 //console.table(Object.entries(spreadedFrequecy).sort((a, b) => b[1] - a[1]));
 
+
+printList(nextNumbers, 'next: ');
+const rouletteMean = circularMean(positions);
+console.log('Roulete mean number:', roulette[rouletteMean]);
+
 const spacings = Object.fromEntries(roulette.map((n) => [n, []]));
 const maxSpacings = Object.fromEntries(roulette.map((n) => [n, 0]));
 
@@ -394,14 +405,3 @@ console.table(
 );
 
 console.log('Standard Deviation:', stdev[winningNumber + ' ']);
-
-// console.log('D`Lambert Dozen:');
-// const dAlembertResults = {};
-// for (let dozen1 = 1; dozen1 <= 6; dozen1++) {
-
-//   const results = dAlembertDozen(data, dozen1, 2);
-//   if (results.bankroll > 0) {
-//     dAlembertResults['dozen-' + dozen1 ] = results;
-//   }
-// }
-// console.table(dAlembertResults);
