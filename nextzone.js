@@ -21,8 +21,9 @@ import { holyGrail } from './systems/holy-grail.js';
 import {dAlembertDozen} from './systems/d-lambert-dozen.js';
 
 const winningNumber = process.argv[2];
-const dataPoints = [0];
-const minimumHits = 2;
+//maintenance after 6746
+const dataPoints = [6745];
+const minimumHits = 3;
 const fileData = readFileSync('./data/platinum.txt', 'utf-8');
 const data = fileData
   .split(/\r?\n/)
@@ -77,15 +78,21 @@ const printList = (numberList, label) => {
 const frequencyData = [];
 const nextNumbers = {};
 const nextPositions = Object.fromEntries(roulette.map((_, i) => [i, []]));
+const nextDozenData = Object.fromEntries(roulette.map((n) => [ n == -1 ? '00 ' : n.toString() + ' ', {1:0,2:0,3:0,4:0,5:0,6:0}]));
 const spreadedFrequecy = Object.fromEntries(roulette.map((n) => [n, 0]));
 const positions = [];
 const nextZones = [];
+const dozenData = [];
+const columnData = [];
 const previousNumbers = {};
 
 data.forEach((n, index, arr) => {
   if (n == -2) return;
   const pos = roulettePosition(n);
   positions.push(pos);
+  dozenData.push(getDozen(n));
+  columnData.push(getColumn(n));
+  
   const minizone = getMinizone(pos);
   frequencyData[pos] = (frequencyData[pos] | 0) + 1;
 
@@ -94,6 +101,11 @@ data.forEach((n, index, arr) => {
   if (typeof next == 'number') {
     const nextPos = roulettePosition(next);
     const nextMinizone = getMinizone(nextPos);
+    const nextDozen = getDozen(next)
+    const nextColumn = getColumn(next)
+    nextDozenData[ n == -1 ? '00 ' : n.toString() + ' '][nextDozen] += 1
+    nextDozenData[ n == -1 ? '00 ' : n.toString() + ' '][3+nextColumn] += 1
+
     if (nextNumbers[n]) {
       nextNumbers[n].push(next);
       nextPositions[pos].push(nextPos);
@@ -121,7 +133,9 @@ data.forEach((n, index, arr) => {
 
 const spreadData = positions
   .map((p) => {
-    return [roulette[p], roulette[p], ...getAdjacentNumbers(p)];
+    return [roulette[p], 
+    roulette[p], 
+    ...getAdjacentNumbers(p)];
   })
   .flat();
 spreadData.forEach((n) => {
@@ -160,7 +174,7 @@ roulette.forEach((number) => {
     .sort((a, b) => b[1] - a[1])
     .filter((pair) => pair[1] >= minimumHits);
   const label = '' + (number == -1 ? '00 ' : number.toString() + ' ');
-  nextZoneBynumber[label] = Object.fromEntries(entries.slice(0, 18));
+  nextZoneBynumber[label] = Object.fromEntries(entries.slice(0, 12));
 
   means[label] = getNumberAt(circularMean(spreadHits));
   stdev[label] = circularStandardDeviation(spreadHits);
@@ -345,7 +359,8 @@ const colorsResults = {
 // }
 // console.table(holyGrailResults);
 
-//console.table(Object.entries(spreadedFrequecy).sort((a, b) => b[1] - a[1]));
+console.log('spreaded frequencies:')
+console.table(Object.entries(spreadedFrequecy).sort((a, b) => b[1] - a[1]));
 
 
 printList(nextNumbers, 'next: ');
@@ -397,6 +412,9 @@ console.table(
   { [winningNumber]: nextZoneBynumber[winningNumber + ' '] }
   //roulette.map((n) => (n == -1 ? '00 ' : n.toString() + ' '))
 );
+
+console.log('next dozen occurrences:')
+console.table({[winningNumber]: nextDozenData[winningNumber+' ']},['1','2','3','4','5','6']);
 
 console.log('Average jump landing:');
 console.table(
